@@ -1,0 +1,57 @@
+global string $grammar = "F";
+global int $iters = 3;
+global float $stepsize = 1.0;
+global float $angle = 90.0;
+
+global proc filePrompt() {
+	global string $grammar;
+	string $path = `fileDialog -dm "*.txt"`;
+	int $file = `fopen $path "r"`;
+    $grammar = `fread $file $grammar`;
+    fclose $file;
+}
+
+global proc createLSystem() {
+	global string $grammar;
+	global int $iters;
+	$iters = `intSliderGrp -query -value iterSlider`;
+	global float $stepsize;
+	$stepsize = `floatSliderGrp -query -value stepSlider`;
+	global float $angle;
+	$angle = `floatSliderGrp -query -value angleSlider`;
+	print ("LSystemCmd -i "+$iters+" -s "+$stepsize+" -a "+$angle+" -g $grammar\n");
+	LSystemCmd -i $iters -s $stepsize -a $angle -g $grammar;
+}
+
+global proc createWindow() {
+	window -title "Call LSystem Command" myWindow;
+	columnLayout grammarForm;
+		rowLayout -numberOfColumns 2;
+			text -label "Load Grammar File ";
+			button -command filePrompt -label "Browse..." btnBrowse;
+		setParent ..;
+		intSliderGrp -label "Iterations" -field true
+			-minValue 1 -maxValue 25 -value 3 iterSlider;
+		floatSliderGrp -label "Default Step Size" -field true
+			-minValue 0.0 -maxValue 100.0 -value 1.0 stepSlider;
+		floatSliderGrp -label "Default Angle" -field true
+			-minValue 0.0 -maxValue 360.0 -value 90.0 angleSlider;
+		rowLayout -numberOfColumns 2;
+			button -command createLSystem -label "Create";
+			button -command ("deleteUI -window myWindow") -label "Cancel";
+
+	showWindow;
+}
+
+global proc createNode() {
+	createNode transform -n LSystem1;
+	createNode mesh -n LSystemShape1 -p LSystem1;
+	sets -add initialShadingGroup LSystemShape1;
+	createNode LSystemNode -n LSystemNode1;
+	connectAttr time1.outTime LSystemNode1.time;
+	connectAttr LSystemNode1.outputMesh LSystemShape1.inMesh;
+}
+
+menu -parent MayaWindow -label "LSystem" -tearOff true;
+	menuItem -command createWindow "LSystem Command...";
+	menuItem -command createNode "LSystem Node...";
