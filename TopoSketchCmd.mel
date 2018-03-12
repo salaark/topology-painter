@@ -1,0 +1,35 @@
+global int $subdiv = 3;
+
+global proc filePrompt() {
+	global string $grammar;
+	string $path = `fileDialog -dm "*.txt"`;
+	int $file = `fopen $path "r"`;
+    $grammar = `fread $file $grammar`;
+    fclose $file;
+}
+
+global proc createLSystem() {
+	global int $subdiv;
+	$subdiv = `intSliderGrp -query -value subSlider`;
+	print ("TopoSketchCmd -s "+$subdiv+"\n");
+	TopoSketchCmd -s $subdiv;
+}
+
+global proc createWindow() {
+	window -title "Call TopoSketch Command" myWindow;
+	columnLayout grammarForm;
+		rowLayout -numberOfColumns 2;
+			text -label "Load OBJ File ";
+			button -command filePrompt -label "Browse..." btnBrowse;
+		setParent ..;
+		intSliderGrp -label "Subdivisions" -field true
+			-minValue 1 -maxValue 10 -value 3 subSlider;
+		rowLayout -numberOfColumns 2;
+			button -command createLSystem -label "Create";
+			button -command ("deleteUI -window myWindow") -label "Cancel";
+
+	showWindow;
+}
+
+menu -parent MayaWindow -label "TopoSketch" -tearOff true;
+	menuItem -command createWindow "TopoSketch Command...";

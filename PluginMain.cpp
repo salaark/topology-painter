@@ -16,8 +16,7 @@
 #include <maya/MStringArray.h>
 #include <list>
 
-#include "LSystemCmd.h"
-#include "LSystemNode.h"
+#include "TopoSketchCmd.h"
 
 MStatus initializePlugin( MObject obj )
 {
@@ -25,21 +24,14 @@ MStatus initializePlugin( MObject obj )
     MFnPlugin plugin( obj, "MyPlugin", "1.0", "Any");
 
     // Register Command
-    status = plugin.registerCommand( "LSystemCmd", LSystemCmd::creator );
+    status = plugin.registerCommand( "TopoSketchCmd", TopoSketchCmd::creator );
     if (!status) {
         status.perror("registerCommand");
         return status;
     }
 
-	status = plugin.registerNode("LSystemNode", LSystemNode::id,
-		LSystemNode::creator, LSystemNode::initialize);
-	if (!status) {
-		status.perror("registerNode");
-		return status;
-	}
-
 	char buffer[2048];
-	sprintf_s(buffer, 2048, "source \"%s/LSystemCmd.mel\";", plugin.loadPath().asChar());
+	sprintf_s(buffer, 2048, "source \"%s/TopoSketchCmd.mel\";", plugin.loadPath().asChar());
 	MGlobal::displayInfo(plugin.loadPath().asChar());
 	MGlobal::executeCommand(buffer, true);
 
@@ -51,17 +43,11 @@ MStatus uninitializePlugin( MObject obj)
     MStatus   status = MStatus::kSuccess;
     MFnPlugin plugin( obj );
 
-    status = plugin.deregisterCommand( "LSystemCmd" );
+    status = plugin.deregisterCommand( "TopoSketchCmd" );
     if (!status) {
 	    status.perror("deregisterCommand");
 	    return status;
     }
-
-	status = plugin.deregisterNode(LSystemNode::id);
-	if (!status) {
-		status.perror("deregisterNode");
-		return status;
-	}
 
     return status;
 }
