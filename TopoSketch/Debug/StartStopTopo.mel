@@ -53,7 +53,7 @@ global proc int new_curveIntersect()
 	if(size($selectedCurvesArray)==2)
 	{
 		string $intersect = "";
-		$intersect = curveIntersect($nomCurve1,$nomCurve2);
+		$intersect = `curveIntersect -tol 0.1 $nomCurve1,$nomCurve2 `;
 		string $tokenIntersect[];
 		clear($tokenIntersect);
 		tokenizeList($intersect,$tokenIntersect);
