@@ -6,8 +6,16 @@
 
 
 MStatus initializePlugin(MObject obj) {
+	
+	
+	char buffer[2048];
 	MFnPlugin pluginFn(obj, "TopoSketchC", "1.0");
-	MStatus stat; stat = pluginFn.registerCommand("TopoSketch", TopoSketch::creator);
+	sprintf_s(buffer, 2048, "source \"%s/StartStopTopo.mel\";", (pluginFn.loadPath()).asChar());
+
+	MGlobal::executeCommand(buffer, true);
+
+	MStatus stat;
+	stat = pluginFn.registerCommand("TopoSketch", TopoSketch::creator);
 	if (!stat)
 		stat.perror("registerCommand failed");
 	return stat;
