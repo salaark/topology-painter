@@ -1,18 +1,18 @@
 # TopoSketch
-Sagar Tetali and Salaar Kohari
+Sagar Tetali and Salaar Kohari  
 CIS 660: Advanced Topics in Computer Graphics
 
 Maya C++/MEL plugin to allow for sketch-based retopography based on existing SIGGRAPH research.
 
 ## Usage Details
 
-The MEL Command to run the plugin is "TopoSketch".
-The MEL Script "StartStopTopo.mel" when loaded, creates two global procedures "startTopoSketch", and "stopTopoSketch".
+Enable the plugin through Windows->Settings/Preferences->Plug-in Manager and browsing for the .mll file.  
+The MEL Command to run the plugin is "TopoSketch".  
+The MEL Script "StartStopTopo.mel" creates two global procedures "startTopoSketch" and "stopTopoSketch" when loaded.  
+These files can be found in TopoSketch/Debug for now.
 
-**startTopoSketch** - 
-
-This first checks the number of objects in the scene selected by the user.
-If only one object is selected, this procedure then makes that mesh live, and starts the CV Curve Tool operation to enable drawing curves on the mesh.
+**startTopoSketch** - first checks the number of objects in the scene selected by the user.  
+If only one object is selected, this procedure then makes that mesh live, and starts the CV Curve Tool operation to enable drawing curves on the mesh.  
 Note: It is suggested you enable wireframe mode when doing this.
 
 If more or no objects are selected, it throws an error.
