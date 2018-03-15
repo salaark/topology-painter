@@ -1,3 +1,5 @@
+global int $count;
+
 global proc startTopoSketch()
 {
 	string $selected[] = `ls -sl`;
@@ -26,10 +28,13 @@ global proc stopTopoSketch()
 // Procedure called on press
 global proc sampleContextPress()
 {
+	global int $count;
 	int $button = `draggerContext -query -button sampleContext`;
 	float $pressPosition[] = `draggerContext -query -anchorPoint sampleContext`;
 	if($button == 3) {
-		CVCurveTool;
+		$count++;
+		$newcurve = `CVCurveTool`;
+		setToolTo $newcurve;
 	}
 }
 
