@@ -1,42 +1,42 @@
-
 global proc startTopoSketch()
 {
 	string $selected[] = `ls -sl`;
-	if (size($selected)==1)
-	{
-    		$el = $selected[0];
-    		makeLive $el;
-		CVCurveTool;
-    
-	}
-	else if(size($selected)>1)
-	{
-    		error "Too Many Objects Selected";
-	}
-	else if(size($selected)==0)
-	{
-    		error "No Objects Selected";
+	if (size($selected)==1) {
+    	$el = $selected[0];
+    	makeLive $el;
+	} else if(size($selected)>1) {
+    	error "Too Many Objects Selected";
+	} else if(size($selected)==0) {
+    	error "No Objects Selected";
 	}
 }
 
 global proc stopTopoSketch()
 {
 	string $selectedel[] = `ls -sl`;
-	if (size($selectedel)==0)
-	{
-    		
-    		makeLive -n;
-    	
-    
-	}
-	else
-	{
+	if (size($selectedel)==0) {
+    	makeLive -n;
+	} else {
 	    select -cl;
 	    makeLive -n;
 	}
     
-    
 }
 
+// Procedure called on press
+global proc sampleContextPress()
+{
+	int $button = `draggerContext -query -button sampleContext`;
+	float $pressPosition[] = `draggerContext -query -anchorPoint sampleContext`;
+	if($button == 3) {
+		CVCurveTool;
+	}
+}
 
+// Create the dragger context
+draggerContext
+    -pressCommand "sampleContextPress"
+    -cursor       "hand"
+    sampleContext;
 
+setToolTo sampleContext;
