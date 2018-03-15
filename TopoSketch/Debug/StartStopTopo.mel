@@ -38,5 +38,46 @@ global proc stopTopoSketch()
     
 }
 
+global proc int new_curveIntersect()
+{
+	string $selectedCurves;
+	string $selectedCurvesArray[];
+	string $nomCurve1;
+	string $nomCurve2;
+	clear($selectedCurvesArray);
+	$selectedCurvesArray = `ls -sl`;
+	//tokenizeList($selectedCurves, $selectedCurvesArray);
+	string $nomCurve1 = $selectedCurvesArray[0];
+	string $nomCurve2 = $selectedCurvesArray[1];
 
-
+	if(size($selectedCurvesArray)==2)
+	{
+		string $intersect = "";
+		$intersect = curveIntersect($nomCurve1,$nomCurve2);
+		string $tokenIntersect[];
+		clear($tokenIntersect);
+		tokenizeList($intersect,$tokenIntersect);
+		//if there intersection
+		if(size($tokenIntersect)!=0)
+		{
+			//we create a locator
+			for($i=0;$i<(size($tokenIntersect)/2);$i++)
+			{
+				float $uCoord = $tokenIntersect[$i];
+				float $pCoord[] = pointOnCurve("-pr",$uCoord,"-p",$nomCurve1);
+				string $locName[] = spaceLocator("-p",0,0,0);
+				setAttr($locName[0]+".translate",$pCoord[0],$pCoord[1],$pCoord[2]);
+				rename("intersect_"+$nomCurve1+"_"+$nomCurve2+"_"+($i+1));
+			}
+	}
+	else
+	{
+		error("No intersection beetween the curves !");
+	}
+	}
+	else
+	{
+	error("Too many curves!");
+	}
+return 0;
+}
