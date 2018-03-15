@@ -1,5 +1,10 @@
 # TopoSketch
-Sagar and Salaar
+Sagar Tetali and Salaar Kohari
+CIS 660: Advanced Topics in Computer Graphics
+
+Maya C++/MEL plugin to allow for sketch-based retopography based on existing SIGGRAPH research.
+
+## Usage Details
 
 The MEL Command to run the plugin is "TopoSketch".
 The MEL Script "StartStopTopo.mel" when loaded, creates two global procedures "startTopoSketch", and "stopTopoSketch".
