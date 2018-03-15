@@ -1,8 +1,7 @@
-﻿  PluginMain.cpp
+﻿  TopoSketchCmd.cpp
+  PluginMain.cpp
   Generating Code...
-  Compiling...
-  TopoSketchCmd.cpp
-  Generating Code...
+  LINK : Debug\TopoSketch.mll not found or not built by the last incremental link; performing full link
      Creating library Debug\TopoSketch.lib and object Debug\TopoSketch.exp
-  TopoSketch.vcxproj -> c:\Users\sagar tetali\documents\visual studio 2015\Projects\TopoSketch\TopoSketch\Debug\TopoSketch.mll
+  TopoSketch.vcxproj -> C:\Users\Sagar Tetali\Desktop\Topology Painter\topology-painter\TopoSketch\Debug\TopoSketch.mll
   TopoSketch.vcxproj -> Debug\TopoSketch.pdb (Full PDB)
