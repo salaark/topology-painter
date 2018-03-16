@@ -1,4 +1,5 @@
 
+
 global proc startTopoSketch()
 {
 	string $selected[] = `ls -sl`;
@@ -47,13 +48,13 @@ global proc int new_curveIntersect()
 	clear($selectedCurvesArray);
 	$selectedCurvesArray = `ls -sl`;
 	//tokenizeList($selectedCurves, $selectedCurvesArray);
-	string $nomCurve1 = $selectedCurvesArray[0];
-	string $nomCurve2 = $selectedCurvesArray[1];
+	$nomCurve1 = $selectedCurvesArray[0];
+	$nomCurve2 = $selectedCurvesArray[1];
 
 	if(size($selectedCurvesArray)==2)
 	{
 		string $intersect = "";
-		$intersect = `curveIntersect -tol 0.1 $nomCurve1,$nomCurve2 `;
+		$intersect = `curveIntersect -tol 0.1 $nomCurve1 $nomCurve2 `;
 		string $tokenIntersect[];
 		clear($tokenIntersect);
 		tokenizeList($intersect,$tokenIntersect);
