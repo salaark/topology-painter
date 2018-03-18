@@ -1,4 +1,45 @@
+global int $SAGflag;
+condition -delete TopoSketchOn;
 
+
+global proc int isTopoSketchOn()
+{
+    global int $SAGflag;
+    if($SAGflag && `SelectionChanged`)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    
+        
+}
+condition
+    -initialize
+    -s "isTopoSketchOn"
+    -d SelectionChanged
+    TopoSketchOn;
+
+scriptJob -e "SelectionChanged" SAGinfinteloop -permanent;
+
+
+    
+    
+
+global proc SAGinfinteloop()
+{
+    string $selectedcurves[];
+    $selectedcurves = `ls -sl`;
+    if(size($selectedcurves)==4)
+    {
+        squareSurface -ch 1 -po 1 -ept 0.01 -cfc 5 -ct1 1 -ct2 1 -ct3 1 -ct4 1 -rc1 0 -rc2 0 -rc3 0 -rc4 0 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+    }
+			
+	
+	
+}
 
 global proc startTopoSketch()
 {
@@ -22,7 +63,9 @@ global proc startTopoSketch()
 
 global proc stopTopoSketch()
 {
+    
 	string $selectedel[] = `ls -sl`;
+	
 	if (size($selectedel)==0)
 	{
     		
@@ -81,4 +124,4 @@ global proc int new_curveIntersect()
 	error("Too many curves!");
 	}
 return 0;
-}
+};
