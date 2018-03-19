@@ -1,5 +1,7 @@
 global int $SAGflag;
-condition -delete TopoSketchOn;
+//use below if running second time in MEL in the same scene/session
+//condition -delete TopoSketchOn;
+
 
 
 global proc int isTopoSketchOn()
@@ -34,7 +36,103 @@ global proc SAGinfinteloop()
     $selectedcurves = `ls -sl`;
     if(size($selectedcurves)==4)
     {
-        squareSurface -ch 1 -po 1 -ept 0.01 -cfc 5 -ct1 1 -ct2 1 -ct3 1 -ct4 1 -rc1 0 -rc2 0 -rc3 0 -rc4 0 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+string $selectedCurves;
+string $selectedCurvesArray[];
+string $nomCurve1;
+string $nomCurve2;
+clear($selectedCurvesArray);
+$selectedCurvesArray = `ls -sl`;
+//tokenizeList($selectedCurves, $selectedCurvesArray);
+$nomCurve1 = $selectedCurvesArray[0];
+$nomCurve2 = $selectedCurvesArray[1];
+$nomCurve3 = $selectedCurvesArray[2];
+$nomCurve4 = $selectedCurvesArray[3];
+
+
+if(size($selectedCurvesArray)==4)
+{
+string $intersect1= "";
+string $intersect2 = "";
+string $intersect3 = "";
+string $intersect4 = "";
+
+
+$intersect1 = `curveIntersect -tol 0.1 $nomCurve1 $nomCurve2 `;
+$intersect2 = `curveIntersect -tol 0.1 $nomCurve2 $nomCurve3`;
+$intersect3 = `curveIntersect -tol 0.1 $nomCurve3 $nomCurve4`;
+$intersect4 = `curveIntersect -tol 0.1 $nomCurve1 $nomCurve4`;
+
+
+
+string $tokenIntersect1[];
+string $tokenIntersect2[];
+string $tokenIntersect3[];
+string $tokenIntersect4[];
+clear($tokenIntersect1);
+clear($tokenIntersect2);
+clear($tokenIntersect3);
+clear($tokenIntersect4);
+tokenizeList($intersect1,$tokenIntersect1);
+tokenizeList($intersect2,$tokenIntersect2);
+tokenizeList($intersect3,$tokenIntersect3);
+tokenizeList($intersect4,$tokenIntersect4);
+//if there intersection
+
+if(size($tokenIntersect1)!=0)
+{
+//we create a locator
+for($i=0;$i<(size($tokenIntersect1)/2);$i++)
+{
+float $uCoord = $tokenIntersect1[$i];
+float $pCoord[] = pointOnCurve("-pr",$uCoord,"-p",$nomCurve1);
+string $locName[] = spaceLocator("-p",0,0,0);
+setAttr($locName[0]+".translate",$pCoord[0],$pCoord[1],$pCoord[2]);
+rename("intersect1_"+$nomCurve1+"_"+$nomCurve2+"_"+($i+1));
+}
+}
+if(size($tokenIntersect2)!=0)
+{
+//we create a locator
+for($i=0;$i<(size($tokenIntersect2)/2);$i++)
+{
+float $uCoord = $tokenIntersect2[$i];
+float $pCoord[] = pointOnCurve("-pr",$uCoord,"-p",$nomCurve2);
+string $locName[] = spaceLocator("-p",0,0,0);
+setAttr($locName[0]+".translate",$pCoord[0],$pCoord[1],$pCoord[2]);
+rename("intersect2_"+$nomCurve2+"_"+$nomCurve3+"_"+($i+1));
+}
+}
+if(size($tokenIntersect3)!=0)
+{
+//we create a locator
+for($i=0;$i<(size($tokenIntersect3)/2);$i++)
+{
+float $uCoord = $tokenIntersect3[$i];
+float $pCoord[] = pointOnCurve("-pr",$uCoord,"-p",$nomCurve3);
+string $locName[] = spaceLocator("-p",0,0,0);
+setAttr($locName[0]+".translate",$pCoord[0],$pCoord[1],$pCoord[2]);
+rename("intersect3_"+$nomCurve3+"_"+$nomCurve4+"_"+($i+1));
+}
+}
+if(size($tokenIntersect4)!=0)
+{
+//we create a locator
+for($i=0;$i<(size($tokenIntersect4)/2);$i++)
+{
+float $uCoord = $tokenIntersect4[$i];
+float $pCoord[] = pointOnCurve("-pr",$uCoord,"-p",$nomCurve1);
+string $locName[] = spaceLocator("-p",0,0,0);
+setAttr($locName[0]+".translate",$pCoord[0],$pCoord[1],$pCoord[2]);
+rename("intersect4_"+$nomCurve1+"_"+$nomCurve4+"_"+($i+1));
+}
+}
+
+}
+else
+{
+error("Too many curves!");
+}
+squareSurface -ch 1 -po 1 -ept 0.01 -cfc 5 -ct1 1 -ct2 1 -ct3 1 -ct4 1 -rc1 0 -rc2 0 -rc3 0 -rc4 0 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
     }
 			
 	
