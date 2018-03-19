@@ -1,3 +1,4 @@
+
 global int $SAGflag;
 //use below if running second time in MEL in the same scene/session
 //condition -delete TopoSketchOn;
@@ -6,36 +7,48 @@ global int $SAGflag;
 
 global proc int isTopoSketchOn()
 {
-    global int $SAGflag;
-    if($SAGflag && `SelectionChanged`)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-    
-        
+global int $SAGflag;
+if($SAGflag && `SelectionChanged`)
+{
+return true;
+}
+else
+{
+return false;
+}
+
+
 }
 condition
-    -initialize
-    -s "isTopoSketchOn"
-    -d SelectionChanged
-    TopoSketchOn;
+-initialize
+-s "isTopoSketchOn"
+-d SelectionChanged
+TopoSketchOn;
 
 scriptJob -e "SelectionChanged" SAGinfinteloop -permanent;
 
+global proc SAGadjacency(string $selectedCurvesArray[])
+{
+string $nextCurves[];
+$nextCurves[0] = $selectedCurvesArray[1];
+$nextCurves[1] = $selectedCurvesArray[2];
+$nextCurves[2] = $selectedCurvesArray[3];
+$nextCurves[3] = $selectedCurvesArray[1];
+print $nextCurves;
 
-    
-    
+
+}
+
+
+
+
 
 global proc SAGinfinteloop()
 {
-    string $selectedcurves[];
-    $selectedcurves = `ls -sl`;
-    if(size($selectedcurves)==4)
-    {
+string $selectedcurves[];
+$selectedcurves = `ls -sl`;
+if(size($selectedcurves)==4)
+{
 string $selectedCurves;
 string $selectedCurvesArray[];
 string $nomCurve1;
@@ -47,6 +60,8 @@ $nomCurve1 = $selectedCurvesArray[0];
 $nomCurve2 = $selectedCurvesArray[1];
 $nomCurve3 = $selectedCurvesArray[2];
 $nomCurve4 = $selectedCurvesArray[3];
+
+
 
 
 if(size($selectedCurvesArray)==4)
@@ -77,6 +92,9 @@ tokenizeList($intersect2,$tokenIntersect2);
 tokenizeList($intersect3,$tokenIntersect3);
 tokenizeList($intersect4,$tokenIntersect4);
 //if there intersection
+if((size($tokenIntersect1)!=0)&&(size($tokenIntersect2)!=0)&&(size($tokenIntersect3)!=0)&&(size($tokenIntersect4)!=0))
+{
+SAGadjacency($selectedCurvesArray);
 
 if(size($tokenIntersect1)!=0)
 {
@@ -130,96 +148,102 @@ rename("intersect4_"+$nomCurve1+"_"+$nomCurve4+"_"+($i+1));
 }
 else
 {
-error("Too many curves!");
+error("Curves Don't Intersect!");
+}
+}
+else
+{
+error("Too many Curves");
 }
 squareSurface -ch 1 -po 1 -ept 0.01 -cfc 5 -ct1 1 -ct2 1 -ct3 1 -ct4 1 -rc1 0 -rc2 0 -rc3 0 -rc4 0 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
-    }
-			
-	
-	
+}
+
+
+
 }
 
 global proc startTopoSketch()
 {
-	string $selected[] = `ls -sl`;
-	if (size($selected)==1)
-	{
-    		$el = $selected[0];
-    		makeLive $el;
-		CVCurveTool;
-    
-	}
-	else if(size($selected)>1)
-	{
-    		error "Too Many Objects Selected";
-	}
-	else if(size($selected)==0)
-	{
-    		error "No Objects Selected";
-	}
+string $selected[] = `ls -sl`;
+if (size($selected)==1)
+{
+$el = $selected[0];
+makeLive $el;
+CVCurveTool;
+
+}
+else if(size($selected)>1)
+{
+error "Too Many Objects Selected";
+}
+else if(size($selected)==0)
+{
+error "No Objects Selected";
+}
 }
 
 global proc stopTopoSketch()
 {
-    
-	string $selectedel[] = `ls -sl`;
-	
-	if (size($selectedel)==0)
-	{
-    		
-    		makeLive -n;
-    	
-    
-	}
-	else
-	{
-	    select -cl;
-	    makeLive -n;
-	}
-    
-    
+
+string $selectedel[] = `ls -sl`;
+
+if (size($selectedel)==0)
+{
+
+makeLive -n;
+
+
+}
+else
+{
+select -cl;
+makeLive -n;
+}
+
+
 }
 
 global proc int new_curveIntersect()
 {
-	string $selectedCurves;
-	string $selectedCurvesArray[];
-	string $nomCurve1;
-	string $nomCurve2;
-	clear($selectedCurvesArray);
-	$selectedCurvesArray = `ls -sl`;
-	//tokenizeList($selectedCurves, $selectedCurvesArray);
-	$nomCurve1 = $selectedCurvesArray[0];
-	$nomCurve2 = $selectedCurvesArray[1];
+string $selectedCurves;
+string $selectedCurvesArray[];
+string $nomCurve1;
+string $nomCurve2;
+clear($selectedCurvesArray);
+$selectedCurvesArray = `ls -sl`;
+//tokenizeList($selectedCurves, $selectedCurvesArray);
+$nomCurve1 = $selectedCurvesArray[0];
+$nomCurve2 = $selectedCurvesArray[1];
 
-	if(size($selectedCurvesArray)==2)
-	{
-		string $intersect = "";
-		$intersect = `curveIntersect -tol 0.1 $nomCurve1 $nomCurve2 `;
-		string $tokenIntersect[];
-		clear($tokenIntersect);
-		tokenizeList($intersect,$tokenIntersect);
-		//if there intersection
-		if(size($tokenIntersect)!=0)
-		{
-			//we create a locator
-			for($i=0;$i<(size($tokenIntersect)/2);$i++)
-			{
-				float $uCoord = $tokenIntersect[$i];
-				float $pCoord[] = pointOnCurve("-pr",$uCoord,"-p",$nomCurve1);
-				string $locName[] = spaceLocator("-p",0,0,0);
-				setAttr($locName[0]+".translate",$pCoord[0],$pCoord[1],$pCoord[2]);
-				rename("intersect_"+$nomCurve1+"_"+$nomCurve2+"_"+($i+1));
-			}
-	}
-	else
-	{
-		error("No intersection beetween the curves !");
-	}
-	}
-	else
-	{
-	error("Too many curves!");
-	}
+if(size($selectedCurvesArray)==2)
+{
+string $intersect = "";
+$intersect = `curveIntersect -tol 0.1 $nomCurve1 $nomCurve2 `;
+string $tokenIntersect[];
+clear($tokenIntersect);
+tokenizeList($intersect,$tokenIntersect);
+//if there intersection
+if(size($tokenIntersect)!=0)
+{
+//we create a locator
+for($i=0;$i<(size($tokenIntersect)/2);$i++)
+{
+float $uCoord = $tokenIntersect[$i];
+float $pCoord[] = pointOnCurve("-pr",$uCoord,"-p",$nomCurve1);
+string $locName[] = spaceLocator("-p",0,0,0);
+setAttr($locName[0]+".translate",$pCoord[0],$pCoord[1],$pCoord[2]);
+rename("intersect_"+$nomCurve1+"_"+$nomCurve2+"_"+($i+1));
+}
+}
+else
+{
+error("No intersection beetween the curves !");
+}
+}
+else
+{
+error("Too many curves!");
+}
 return 0;
 };
+
