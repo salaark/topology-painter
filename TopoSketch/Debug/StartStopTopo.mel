@@ -12,7 +12,7 @@ global vector $SAGIntersection4;
 global proc int isTopoSketchOn()
 {
     global int $SAGflag;
-    if($SAGflag && `SelectionChanged`)
+    if($SAGflag)
     {
         return true;
     }
@@ -149,6 +149,7 @@ global proc SAGinfinteloop()
                         rename("intersect4_"+$nomCurve1+"_"+$nomCurve4+"_"+($i+1));
                     }
                 }
+                SAGsurfaceGen($selectedCurvesArray);
             }
             else
             {
@@ -166,12 +167,15 @@ global proc SAGinfinteloop()
 
 global proc startTopoSketch()
 {
+    global int $SAGflag;
+    $SAGflag = 1;
+    
     string $selected[] = `ls -sl`;
     if (size($selected)==1)
     {
         $el = $selected[0];
         makeLive $el;
-        CVCurveTool;
+        EPCurveTool;
     
     }
     else if(size($selected)>1)
@@ -186,6 +190,8 @@ global proc startTopoSketch()
     
 global proc stopTopoSketch()
 {
+    global int $SAGflag;
+    $SAGflag = 0;
     
    string $selectedel[] = `ls -sl`;
     
@@ -207,13 +213,10 @@ global proc stopTopoSketch()
 
 global proc SAGsurfaceGen(string $selectedCurvesArray[])
 {
-    string $knots;
-    string $knots = `getAttr "curve1.cv[*]"`;
-    print("" + $knots + "\n");
+    float $knots[];
+    $knots = `getAttr "curve1.cv[*]"`;
+    print($knots[0]);
 }
-
-
-
 
 
 
