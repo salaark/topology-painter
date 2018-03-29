@@ -175,7 +175,7 @@ global proc startTopoSketch()
     {
         $el = $selected[0];
         makeLive $el;
-        EPCurveTool;
+        CVCurveTool;
     
     }
     else if(size($selected)>1)
