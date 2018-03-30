@@ -1,0 +1,41 @@
+
+global int $SAGwinSize[];
+$SAGwinSize = `window -q -wh MayaWindow`;
+print("Screen Dimensions" + $SAGwinSize[0] + " " + $SAGwinSize[1]);
+
+draggerContext
+    -pressCommand "sampleContextPress"
+    -dragCommand  "sampleContextDrag"
+    -cursor       "hand"
+    handContext;
+    
+
+    global proc sampleContextPress()
+{   
+    global int $SAGwinSize[];
+    string $selected[];
+    $selected = `ls -sl`;
+    float $pressPosition[] = `draggerContext -query -anchorPoint  handContext `;
+    float $upoint = $pressPosition[0]/$SAGwinSize[0]*1.0;
+    float $vpoint = $pressPosition[1]/$SAGwinSize[1]*1.0;
+    
+    string $projectpoints =  `pointOnSurface -u $upoint -v $vpoint pSphereShape1`;
+    getAttr ($projectpoints + ".position"); 
+    print ("Press: " + $pressPosition[0] + " " + $pressPosition[1] + " " + $pressPosition[2] +  "\n");
+    
+}
+global proc sampleContextDrag()
+{
+    float  $dragPosition[] = `draggerContext -query -dragPoint handContext`;
+    int    $button     = `draggerContext -query -button handContext`;
+    string $modifier   = `draggerContext -query -modifier handContext`;
+
+    print ("Drag: " + $dragPosition[0] + " " + $dragPosition[1] + " "
+        + $dragPosition[2]
+        + "  Button is " + $button + "  Modifier is " + $modifier + "\n");
+
+    string $message = ($dragPosition[0] + ", " + $dragPosition[1]);
+    draggerContext -edit -drawString $message handContext;
+}
+
+setToolTo handContext;
