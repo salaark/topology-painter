@@ -29,7 +29,7 @@ condition
 -d SelectionChanged
 TopoSketchOn;
 
-scriptJob -e "SelectionChanged" SAGinfinteloop -permanent;
+scriptJob -e "SelectionChanged" SAGIntersection -permanent;
 
 global proc SAGadjacency(string $selectedCurvesArray[])
 {
@@ -47,8 +47,9 @@ global proc SAGadjacency(string $selectedCurvesArray[])
 
 
 
+/*This procedure looks for intersections when four curves are selected, and generates a square surface within the bounded region*/
 
-global proc SAGinfinteloop()
+global proc SAGIntersection()
 {
     global vector $SAGIntersection1;
     global vector $SAGIntersection2;
@@ -220,7 +221,7 @@ global proc SAGsurfaceGen(string $selectedCurvesArray[])
 
 
 
-
+//This function returns an intersection point given two curves.
 global proc int new_curveIntersect()
 {
 	string $selectedCurves;
