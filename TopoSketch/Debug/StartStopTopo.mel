@@ -72,6 +72,9 @@ global proc SAGIntersection()
         $nomCurve4 = $selectedCurvesArray[3];
         if(size($selectedCurvesArray)==4)
         {
+            boundary -ch 1 -or 0 -ep 0 -rn 0 -po 1 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+            dR_conform;
+            dR_DoCmd("conform");
             string $intersect1= "";
             string $intersect2 = "";
             string $intersect3 = "";
@@ -161,7 +164,9 @@ global proc SAGIntersection()
         {
             error("Too many Curves");
         }
-        squareSurface -ch 1 -po 1 -ept 0.01 -cfc 5 -ct1 1 -ct2 1 -ct3 1 -ct4 1 -rc1 0 -rc2 0 -rc3 0 -rc4 0 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+        /*squareSurface -ch 1 -po 1 -ept 0.01 -cfc 5 -ct1 1 -ct2 1 -ct3 1 -ct4 1 -rc1 0 -rc2 0 -rc3 0 -rc4 0 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];*/
+        
+
         print("Intersection Points are "+ $SAGIntersection1 + "\n" + $SAGIntersection2 + "\n" + $SAGIntersection3 + "\n" + $SAGIntersection4 + "\n");
     }
 }
