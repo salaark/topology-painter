@@ -7,21 +7,21 @@ def newCurve(newName):
 		if name == newName:
 			continue
 		# compute curve intersection
-		print("curveIntersect -tol 0.1 "+newName+" "+name+";")
-		# curvePos = mel.eval("curveIntersect -tol 0.1 "+newName+" "+name+";")
 		curvePos = cmds.curveIntersect(newName, name, tol=0.1)
-		print(curvePos)
-		if name != newName and curvePos:
-			curves[name][newName] = curvePos
-			curves[newName][name] = curvePos
-	# for loop in checkLoops():
-		# makeFace(loop[0], loop[1], loop[2], loop[3]) # make face here
+		if curvePos:
+			curvePos = float(curvePos.split(" ")[0])
+			intPos = cmds.pointOnCurve(newName, pr=curvePos, p=True)
+			print("Intersection: "+str(intPos))
+			curves[name][newName] = intPos
+			curves[newName][name] = intPos
 
 def checkLoops():
+	"""
 	curves = {"curve1": {"curve2":(1,0), "curve4":(0,0)},
 			  "curve2": {"curve1":(1,0), "curve3":(1,1)},
 			  "curve3": {"curve2":(1,1), "curve4":(0,1)},
 			  "curve4": {"curve3":(0,1), "curve1":(0,0)}}
+	"""
 	rv = []
 	for start in curves:
 		loops = {start: [start]}
@@ -38,8 +38,8 @@ def checkLoops():
 		for curr in loops:
 			if len(loops[curr]) == 4:
 				loop = loops[curr]
-				if(set(loop) not in rv):
-					rv.append(set(loop))
+				if loop[3] in curves[loop[0]] and set(loop) not in [set(r) for r in rv]:
+					rv.append(loop)
 	return rv
 
 objs = mel.eval("ls -et transform;")
@@ -49,6 +49,9 @@ curves = {}
 for o in objs:
     if o[0:5] == "curve":
         newCurve(o)
-print(curves)
 
-# print(checkLoops())
+for loop in checkLoops():
+	loop = list(loop)
+	print("Loop: "+str(loop))
+	# Make surface patch
+	cmds.squareSurface(loop[0], loop[1], loop[2], loop[3])
