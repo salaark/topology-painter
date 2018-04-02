@@ -1,14 +1,21 @@
-curves = {}
+import maya.mel as mel
+import maya.cmds as cmds
 
 def newCurve(newName):
 	curves[newName] = {}
 	for name in curves:
-		curvePos = curveIntersection(name, newName) # compute intersection here
+		if name == newName:
+			continue
+		# compute curve intersection
+		print("curveIntersect -tol 0.1 "+newName+" "+name+";")
+		# curvePos = mel.eval("curveIntersect -tol 0.1 "+newName+" "+name+";")
+		curvePos = cmds.curveIntersect(newName, name, tol=0.1)
+		print(curvePos)
 		if name != newName and curvePos:
 			curves[name][newName] = curvePos
 			curves[newName][name] = curvePos
-	for loop in checkLoops():
-		makeFace(loop[0], loop[1], loop[2], loop[3]) # make face here
+	# for loop in checkLoops():
+		# makeFace(loop[0], loop[1], loop[2], loop[3]) # make face here
 
 def checkLoops():
 	curves = {"curve1": {"curve2":(1,0), "curve4":(0,0)},
@@ -35,4 +42,13 @@ def checkLoops():
 					rv.append(set(loop))
 	return rv
 
-print(checkLoops())
+objs = mel.eval("ls -et transform;")
+
+curves = {}
+
+for o in objs:
+    if o[0:5] == "curve":
+        newCurve(o)
+print(curves)
+
+# print(checkLoops())
