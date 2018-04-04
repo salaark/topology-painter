@@ -1,6 +1,7 @@
 global int $SAGflag;
 global int $SAGisDrawing;
 global int $SAGnumTimes;
+$SAGnumTimes = 0;
 global vector $SAGIntersection1;
 global vector $SAGIntersection2;
 global vector $SAGIntersection3;
@@ -19,6 +20,7 @@ nameCommand
 
 
 
+
 scriptJob -e "SelectionChanged" SAGIntersection -permanent;
 $SAGjobnum = `scriptJob -e "ToolChanged" SAGrenewThis`;
 int $SAGjobnum;
@@ -30,8 +32,31 @@ global proc SAGrenewThis()
     global int $SAGjobnum;
     global int $SAGflag;
     global int $SAGisDrawing;
+
     
-    $SAGnumTimes++;
+    
+   
+     string $stA[] = `ls -type "curveShape"`;
+
+
+
+if( (size($stA)>0)&&(size($stA)%4==0))
+{
+        $SAGisDrawing = 0;
+        $SAGnumTimes = 0;
+        escapeCurrentTool;
+        if(($SAGjobnum!=0))
+        {
+        scriptJob -kill $SAGjobnum;
+        $SAGjobnum = 0;
+        }
+        
+    
+    
+}
+else
+{
+     $SAGnumTimes++;
     if($SAGflag && $SAGisDrawing)
     {
         
@@ -43,16 +68,10 @@ global proc SAGrenewThis()
         
         
     
-       if($SAGnumTimes == 12)
-    {
-        
-        $SAGisDrawing = 0;
-        $SAGnumTimes = 0;
-        scriptJob -kill $SAGjobnum;
-        
-        
+       
     }
-    }
+    
+}
     
 }
 
@@ -77,7 +96,7 @@ global proc SAGadjacency(string $selectedCurvesArray[])
 global proc SAGIntersection()
 {
     global int $SAGisDrawing;
-    global int $SAGnumTimes;
+   
     global vector $SAGIntersection1;
     global vector $SAGIntersection2;
     global vector $SAGIntersection3;
@@ -104,6 +123,7 @@ global proc SAGIntersection()
             boundary -ch 1 -or 0 -ep 0 -rn 0 -po 1 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
             dR_conform;
             dR_DoCmd("conform");
+            DeleteHistory;
             string $intersect1= "";
             string $intersect2 = "";
             string $intersect3 = "";
@@ -203,7 +223,7 @@ global proc SAGIntersection()
 global proc startTopoSketch()
 {
     global int $SAGisDrawing;
-    global int $SAGnumTimes;
+    
     
     global int $SAGflag;
     $SAGflag = 1;
@@ -214,7 +234,7 @@ global proc startTopoSketch()
         $el = $selected[0];
         makeLive $el;
         $SAGisDrawing = 1;
-        $SAGnumTimes = 1;
+        
         EPCurveTool;
     
     }
@@ -306,3 +326,4 @@ global proc int new_curveIntersect()
     }
     return 0;
 };
+    
