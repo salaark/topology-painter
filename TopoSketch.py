@@ -1,5 +1,15 @@
 import maya.mel as mel
 import maya.cmds as cmds
+import math
+
+def curveInt(curve1, curve2, tol=0.2, num=45):
+	for a in range(0, num):
+		for b in range(0, num):
+			p1 = cmds.pointOnCurve(curve1, pr=a/float(num), p=True)
+			p2 = cmds.pointOnCurve(curve2, pr=b/float(num), p=True)
+			dist = math.sqrt((p1[0]-p2[0])**2+(p1[1]-p2[1])**2+(p1[2]-p2[2])**2)
+			if dist <= tol:
+				return [(p1[0]+p2[0])/2.0, (p1[1]+p2[1])/2.0, (p1[2]+p2[2])/2.0]
 
 def newCurve(newName):
 	curves[newName] = {}
@@ -7,13 +17,13 @@ def newCurve(newName):
 		if name == newName:
 			continue
 		# compute curve intersection
-		curvePos = cmds.curveIntersect(newName, name, tol=0.1)
+		curvePos = curveInt(newName, name, tol=0.1)
 		if curvePos:
-			curvePos = float(curvePos.split(" ")[0])
-			intPos = cmds.pointOnCurve(newName, pr=curvePos, p=True)
-			print("Intersection: "+str(intPos))
-			curves[name][newName] = intPos
-			curves[newName][name] = intPos
+			#curvePos = float(curvePos.split(" ")[0])
+			#intPos = cmds.pointOnCurve(newName, pr=curvePos, p=True)
+			print("Intersection: "+str(curvePos))
+			curves[name][newName] = curvePos
+			curves[newName][name] = curvePos
 
 def checkLoops():
 	"""
@@ -54,4 +64,4 @@ for loop in checkLoops():
 	loop = list(loop)
 	print("Loop: "+str(loop))
 	# Make surface patch
-	cmds.squareSurface(loop[0], loop[1], loop[2], loop[3])
+	cmds.boundary(loop[0], loop[1], loop[2], loop[3], order=False)
