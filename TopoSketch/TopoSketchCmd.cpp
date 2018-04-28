@@ -13,6 +13,13 @@
 
 #include <maya/MGlobal.h>
 #include "TopoSketchCmd.h"
+#include <math.h>
+#include <maya/MIOStream.h>
+#include <maya/MSimple.h>
+#include <maya/MPoint.h>
+#include <maya/MPointArray.h>
+#include <maya/MDoubleArray.h>
+#include <maya/MFnNurbsCurve.h>
 
 
 
@@ -37,7 +44,13 @@ MStatus TopoSketch::doIt( const MArgList& args )
 //                     error is caught using a "catch" statement.
 //
 {
+	MFnNurbsCurve curveFn;
+	MSelectionList selection;
+	MGlobal::getActiveSelectionList(selection);
+
+
 	MStatus stat = MS::kSuccess;
+
 
 	// Since this class is derived off of MPxCommand, you can use the 
 	// inherited methods to return values and set error messages

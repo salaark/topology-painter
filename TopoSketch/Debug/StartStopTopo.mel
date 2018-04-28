@@ -22,7 +22,7 @@ nameCommand
 
 
 scriptJob -e "SelectionChanged" SAGIntersection -permanent;
-$SAGjobnum = `scriptJob -e "ToolChanged" SAGrenewThis`;
+//$SAGjobnum = `scriptJob -e "ToolChanged" SAGrenewThis`;
 int $SAGjobnum;
 
 global proc SAGrenewThis()
@@ -47,7 +47,7 @@ if( (size($stA)>0)&&(size($stA)%4==0))
         escapeCurrentTool;
         if(($SAGjobnum!=0))
         {
-        scriptJob -kill $SAGjobnum;
+       // scriptJob -kill $SAGjobnum;
         $SAGjobnum = 0;
         }
         
@@ -121,6 +121,7 @@ global proc SAGIntersection()
         {
             $SAGisDrawing = 0;
             boundary -ch 1 -or 0 -ep 0 -rn 0 -po 1 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+  	    nurbsToPolygonsPref -f 0 -pc 30;
             dR_conform;
             dR_DoCmd("conform");
             DeleteHistory;
