@@ -2,13 +2,40 @@ import maya.mel as mel
 import maya.cmds as cmds
 import math
 
-def mergePatches():
+def mergePatches(count):
+	patches = []
+	mesh = ""
+	surface = "boundaryMerged"
+
+	mel.eval("delete -all -constructionHistory;")
+	for o in mel.eval("ls -et transform;"):
+	    if o.startswith("boundary"):
+	        patches.append(str(o))
+	    elif o.startswith("quadMesh"):
+	    	mesh = str(o)
+	if len(patches) > 1:
+		# Merge nurbs patches using attachSurface
+		cmds.rename(patches[0], "boundaryMerged")
+		for p in range(1, len(patches)):
+		    surface = str(cmds.attachSurface(surface, patches[p], rpo=True)[0])
+		    cmds.delete(patches[p])
+		cmds.select(surface, r=True)
+		mel.eval("dR_conform;")
+		mel.eval("dR_DoCmd(\"conform\");")
+		if mesh != "":
+			cmds.delete(mesh)
+		mel.eval("nurbsToPolygonsPref -f 0 -pc "+str(count)+";")
+		cmds.rebuildSurface(surface, po=1, rpo=False, n="quadMeshResult")
+
+mergePatches(30)
+
+def sewPatches():
 	patches = []
 	for o in mel.eval("ls -et transform;"):
 	    if o.startswith("boundary"):
 	        patches.append(str(o))
 	if len(patches) > 1:
-		# Merge patches 1 by 1 by selecting boundary edges and using polySewEdge
+		# Sew patches by selecting boundary edges and using polySewEdge
 		cmds.rename(patches[0], "boundaryMerged0")
 		for p in range(1, len(patches)):
 		    edge = cmds.polyEvaluate("boundaryMerged"+str(p-1), e=True)
@@ -21,8 +48,6 @@ def mergePatches():
 		    sewcmd += ";"
 		    print(sewcmd)
 		    mel.eval(sewcmd)
-	
-mergePatches()
 
 def curveInt(curve1, curve2, tol=0.2, num=45):
 	for a in range(0, num):
