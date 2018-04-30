@@ -14,15 +14,16 @@ def mergePatches():
 	        patches.append(str(o))
 	    elif o.startswith("quadMesh"):
 	    	mesh = str(o)
-	if len(patches) > 1:
-		# Merge nurbs patches using attachSurface
-		cmds.rename(patches[0], surface)
-		for p in range(1, len(patches)):
-		    surface = str(cmds.attachSurface(surface, patches[p], rpo=True)[0])
-		    cmds.delete(patches[p])
-	if mesh != "":
-		cmds.delete(mesh)
 	if len(patches) > 0:
+		cmds.rename(patches[0], surface)
+		if len(patches) > 1:
+			# Merge nurbs patches using attachSurface
+			cmds.rename(patches[0], surface)
+			for p in range(1, len(patches)):
+			    surface = str(cmds.attachSurface(surface, patches[p], rpo=True)[0])
+			    cmds.delete(patches[p])
+		if mesh != "":
+			cmds.delete(mesh)
 		mel.eval("nurbsToPolygonsPref -f 0 -pc "+str(count)+";")
 		cmds.rebuildSurface(surface, po=1, rpo=False, n="quadMeshResult")
 		cmds.select("quadMeshResult", r=True)
