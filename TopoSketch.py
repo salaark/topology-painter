@@ -4,7 +4,7 @@ import math
 
 def mergePatches():
 	patches = []
-	mesh = ""
+	mesh = "quadMeshResult"
 	surface = "boundaryMerged"
 
 	mel.eval("delete -all -constructionHistory;")
@@ -12,25 +12,48 @@ def mergePatches():
 	for o in mel.eval("ls -et transform;"):
 	    if o.startswith("boundary"):
 	        patches.append(str(o))
-	    elif o.startswith("quadMesh"):
-	    	mesh = str(o)
 	if len(patches) > 0:
 		cmds.rename(patches[0], surface)
 		if len(patches) > 1:
 			# Merge nurbs patches using attachSurface
-			cmds.rename(patches[0], surface)
 			for p in range(1, len(patches)):
 			    surface = str(cmds.attachSurface(surface, patches[p], rpo=True)[0])
 			    cmds.delete(patches[p])
-		if mesh != "":
+		if cmds.objExists(mesh):
 			cmds.delete(mesh)
 		mel.eval("nurbsToPolygonsPref -f 0 -pc "+str(count)+";")
 		cmds.rebuildSurface(surface, po=1, rpo=False, n="quadMeshResult")
 		cmds.select("quadMeshResult", r=True)
 		mel.eval("dR_conform;")
 		mel.eval("dR_DoCmd(\"conform\");")
+		mel.eval("polyNormal -normalMode 0 -userNormalMode 0 -ch 0 quadMeshResult;")
 
 # mergePatches()
+
+def averageNormal(surface):
+	cmds.select(surface, r=True)
+	sel = cmds.polyInfo(fn=True)
+	count = len(sel)
+	sums = [0,0,0]
+	for norm in sel:
+	    norm = str(norm).split()
+	    sums[0] += float(norm[2])
+	    sums[1] += float(norm[3])
+	    sums[2] += float(norm[4])
+	average = [sums[0]/count, sums[1]/count, sums[2]/count]
+	return average
+
+def extractPatch():
+	surface = "quadMeshResult"
+	norm = averageNormal(surface)
+	surface = cmds.duplicate(surface, n="tempQuadMesh")
+	cmds.select(surface, r=True)
+	mel.eval("move -ws "+str(norm[0]/-10.0)+" "+str(norm[1]/-10.0)+" "+str(norm[2]/-10.0)+";")
+	mel.eval("polyExtrudeFacet -t "+str(norm[0]/5.0)+" "+str(norm[1]/5.0)+" "+str(norm[2]/5.0)+";")
+	result = cmds.polyCBoolOp("Mesh", surface, op=2, ch=0)
+	cmds.rename(result[0], "Mesh")
+
+# extractPatch()
 
 def sewPatches():
 	patches = []
