@@ -1,5 +1,35 @@
 import maya.mel as mel
 import maya.cmds as cmds
+import math
+
+def mergePatches():
+    
+    
+	patches = []
+	mesh = ""
+	surface = "boundaryMerged"
+	count = mel.eval('global int $SAGsubdivisions; $temp = $SAGsubdivisions;')
+	mel.eval("delete -all -constructionHistory;")
+	for o in mel.eval("ls -et transform;"):
+	    if o.startswith("boundary"):
+	        patches.append(str(o))
+	    elif o.startswith("quadMesh"):
+	    	mesh = str(o)
+	if len(patches) > 1:
+		# Merge nurbs patches using attachSurface
+		cmds.rename(patches[0], "boundaryMerged")
+		for p in range(1, len(patches)):
+		    surface = str(cmds.attachSurface(surface, patches[p], rpo=True)[0])
+		    cmds.delete(patches[p])
+		cmds.select(surface, r=True)
+		mel.eval("dR_conform;")
+		mel.eval("dR_DoCmd(\"conform\");")
+		if mesh != "":
+			cmds.delete(mesh)
+		mel.eval("nurbsToPolygonsPref -f 0 -pc "+str(count)+";")
+		cmds.rebuildSurface(surface, po=1, rpo=False, n="quadMeshResult")
+
+
 
 def newCurve(newName):
 	curves[newName] = {}

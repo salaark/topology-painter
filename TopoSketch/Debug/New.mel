@@ -1,0 +1,87 @@
+global int $SAGsubdivisions;
+global string $SAGslider;
+global int $SAGflag;
+
+global proc TopoSketchWindow()
+{
+    global int $SAGsubdivisions;
+    global string $SAGslider;
+
+window -title "Topology Tool";
+    columnLayout -adjustableColumn true;
+    button -label "Attach Patches" -command "SAGattachPatches";
+    $SAGslider = `intSliderGrp -label "Subdivision Level" -field true
+    -fieldMinValue 10 -fieldMaxValue 200
+    -minValue 0 -maxValue 200 -value 100
+    -changeCommand "SAGrebuildPatches()"`;
+    button -label "Generate Quad Patch" -command "SAGsurfaceGen";
+showWindow;
+}
+
+global proc SAGattachPatches()
+{
+    global int $SAGsubdivisions;
+    global string $SAGslider;
+    $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
+    print($SAGsubdivisions);
+    python "mergePatches()";
+    
+    
+}
+
+global proc SAGrebuildPatches()
+{
+    global int $SAGsubdivisions;
+    global string $SAGslider;
+    $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
+    python "mergePatches()";
+    
+}
+
+global proc startTopoSketch()
+{
+    global int $SAGflag;
+    $SAGflag = 1;
+    
+    string $selected[] = `ls -sl`;
+    if (size($selected)==1)
+    {
+        $el = $selected[0];
+        makeLive $el;
+        
+        
+        EPCurveTool;
+    
+    }
+    else if(size($selected)>1)
+    {
+        error "Too Many Objects Selected";
+    }
+    else if(size($selected)==0)
+    {
+        error "No Objects Selected";
+    }
+}
+
+global proc SAGsurfaceGen()
+{
+    global int $SAGsubdivisions;
+    string $selectedcurves[];
+    $selectedcurves = `ls -sl`;
+    if(size($selectedcurves)==4)
+    {
+        boundary -ch 1 -or 0 -ep 0 -rn 0 -po 1 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+        nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
+        dR_conform;
+        dR_DoCmd("conform");
+        DeleteHistory;
+        
+    }
+    else
+    {
+        error("Too many Curves");
+    }
+        
+    
+    
+}
