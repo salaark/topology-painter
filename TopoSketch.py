@@ -2,12 +2,13 @@ import maya.mel as mel
 import maya.cmds as cmds
 import math
 
-def mergePatches(count):
+def mergePatches():
 	patches = []
 	mesh = ""
 	surface = "boundaryMerged"
 
 	mel.eval("delete -all -constructionHistory;")
+	count = mel.eval('global int $SAGsubdivisions; $temp = $SAGsubdivisions;')
 	for o in mel.eval("ls -et transform;"):
 	    if o.startswith("boundary"):
 	        patches.append(str(o))
@@ -15,19 +16,20 @@ def mergePatches(count):
 	    	mesh = str(o)
 	if len(patches) > 1:
 		# Merge nurbs patches using attachSurface
-		cmds.rename(patches[0], "boundaryMerged")
+		cmds.rename(patches[0], surface)
 		for p in range(1, len(patches)):
 		    surface = str(cmds.attachSurface(surface, patches[p], rpo=True)[0])
 		    cmds.delete(patches[p])
-		cmds.select(surface, r=True)
-		mel.eval("dR_conform;")
-		mel.eval("dR_DoCmd(\"conform\");")
-		if mesh != "":
-			cmds.delete(mesh)
+	if mesh != "":
+		cmds.delete(mesh)
+	if len(patches) > 0:
 		mel.eval("nurbsToPolygonsPref -f 0 -pc "+str(count)+";")
 		cmds.rebuildSurface(surface, po=1, rpo=False, n="quadMeshResult")
+		cmds.select("quadMeshResult", r=True)
+		mel.eval("dR_conform;")
+		mel.eval("dR_DoCmd(\"conform\");")
 
-mergePatches(30)
+# mergePatches()
 
 def sewPatches():
 	patches = []
@@ -113,4 +115,4 @@ def makePatches():
 		# Make surface patch
 		cmds.boundary(loop[0], loop[1], loop[2], loop[3], order=False)
 
-#makePatches()
+# makePatches()
