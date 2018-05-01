@@ -1,6 +1,26 @@
 global int $SAGsubdivisions;
 global string $SAGslider;
 global int $SAGflag;
+global int $SAGjobnum;
+
+$SAGjobnum = `scriptJob -e "ToolChanged" SAGrenewTool -permanent`;
+
+nameCommand -ann "Kill Curve Tool" -c "KillCurveTool" KillCurveToolCommand;
+hotkey -k "F5" -name "KillCurveToolCommand";
+
+
+
+global proc KillCurveTool()
+{
+    global int $SAGflag;
+    $SAGflag = 0;
+    string $current = `currentCtx`;
+    if($current == "curveContextEP")
+    {
+    setToolTo selectSuperContext;
+    }
+    
+}
 
 global proc TopoSketchWindow()
 {
@@ -10,16 +30,21 @@ global proc TopoSketchWindow()
 window -title "Topology Tool";
     columnLayout -adjustableColumn true;
     button -label "Attach Patches" -command "SAGattachPatches";
+    button -label "Stop Drawing" -command "KillCurveTool";
+    button -label "Draw Boundary Curves" -command "SAGstartDrawing";
     $SAGslider = `intSliderGrp -label "Subdivision Level" -field true
     -fieldMinValue 10 -fieldMaxValue 200
     -minValue 0 -maxValue 200 -value 100
     -changeCommand "SAGrebuildPatches()"`;
     button -label "Generate Quad Patch" -command "SAGsurfaceGen";
+    button - label "Attach to Parent Mesh" -command "SAGExtractMesh";
 showWindow;
 }
 
 global proc SAGattachPatches()
 {
+    global int $SAGflag;
+    $SAGflag = 0;
     global int $SAGsubdivisions;
     global string $SAGslider;
     $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
@@ -30,10 +55,14 @@ global proc SAGattachPatches()
 }
 
 global proc SAGrebuildPatches()
-{
+{    
+    global int $SAGflag;
+    $SAGflag = 0;
     global int $SAGsubdivisions;
     global string $SAGslider;
     $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
+    //rebuildSurface -po 1 -rpo false -n "quadMeshResult";
+    //nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
     python "mergePatches()";
     
 }
@@ -42,15 +71,19 @@ global proc startTopoSketch()
 {
     global int $SAGflag;
     $SAGflag = 1;
+    TopoSketchWindow;
     
     string $selected[] = `ls -sl`;
+    $el = $selected[0];
+    rename $el "Mesh";
     if (size($selected)==1)
     {
-        $el = $selected[0];
+        
         makeLive $el;
         
         
         EPCurveTool;
+        
     
     }
     else if(size($selected)>1)
@@ -65,13 +98,26 @@ global proc startTopoSketch()
 
 global proc SAGsurfaceGen()
 {
+    global int $SAGflag;
+    $SAGflag = 0;
     global int $SAGsubdivisions;
+    global string $SAGslider;
     string $selectedcurves[];
     $selectedcurves = `ls -sl`;
+    $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
     if(size($selectedcurves)==4)
     {
-        boundary -ch 1 -or 0 -ep 0 -rn 0 -po 1 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+        boundary -ch 1 -or 0 -ep 0 -rn 0 -po 0 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
+        
+        rebuildSurface -po 1 -rpo false -n "quadMeshResult";
         nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
+        
+        
+        
+        
+        //python "mergePatches()";
+    
+        
         dR_conform;
         dR_DoCmd("conform");
         DeleteHistory;
@@ -83,5 +129,68 @@ global proc SAGsurfaceGen()
     }
         
     
+    
+}
+
+
+global proc SAGrenewTool()
+{
+    global int $SAGflag;
+    if($SAGflag==1)
+    {
+        string $current = `currentCtx`;
+        if($current == "selectSuperContext")
+        {
+            EPCurveTool;
+        }
+        else
+        print("still doin this");
+    }
+    else
+    KillCurveTool;
+   
+    
+    
+}
+
+global proc stopTopoSketch()
+{
+    global int $SAGjobnum;
+    
+    KillCurveTool;
+   
+    
+   //scriptJob -kill $SAGjobnum -force;
+    
+   string $selectedel[] = `ls -sl`;
+    
+   if(size($selectedel)==0)
+   {
+    
+       makeLive -n;
+    
+    
+   }
+   else
+   {
+        select -cl;
+        makeLive -n;
+   }
+
+
+}
+
+global proc SAGExtractMesh()
+{
+    
+    python "extractPatch()";
+}
+
+global proc SAGstartDrawing()
+{
+    global int $SAGflag;
+    $SAGflag = 1;
+    EPCurveTool;
+   
     
 }
