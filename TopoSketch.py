@@ -26,9 +26,9 @@ def mergePatches():
 		cmds.select("quadMeshResult", r=True)
 		mel.eval("dR_conform;")
 		mel.eval("dR_DoCmd(\"conform\");")
-		mel.eval("polyNormal -normalMode 0 -userNormalMode 0 -ch 0 quadMeshResult;")
+		# mel.eval("polyNormal -normalMode 0 -userNormalMode 0 -ch 0 quadMeshResult;")
 
-# mergePatches()
+mergePatches()
 
 def averageNormal(surface):
 	cmds.select(surface, r=True)
@@ -44,6 +44,7 @@ def averageNormal(surface):
 	return average
 
 def extractPatch():
+	# Extract surface patch by extruding the duplicated patch along its normal and using Booleans difference
 	surface = "quadMeshResult"
 	norm = averageNormal(surface)
 	surface = cmds.duplicate(surface, n="tempQuadMesh")
@@ -53,7 +54,19 @@ def extractPatch():
 	result = cmds.polyCBoolOp("Mesh", surface, op=2, ch=0)
 	cmds.rename(result[0], "Mesh")
 
-# extractPatch()
+	# Delete isolated faces from booleans operation
+	mel.eval("select -r Mesh.f[0]")
+	for i in range(0,50):
+		mel.eval("GrowPolygonSelectionRegion;")
+	mel.eval("InvertSelection;")
+	mel.eval("doDelete;")
+
+	# Combine mesh with surface patch
+	mel.eval("polyNormal -normalMode 0 -userNormalMode 0 -ch 0 quadMeshResult;")
+	result = cmds.polyUnite("Mesh", "quadMeshResult")
+	cmds.rename(result[0], "Mesh")
+
+extractPatch()
 
 def sewPatches():
 	patches = []
