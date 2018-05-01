@@ -62,7 +62,7 @@ global proc SAGrebuildPatches()
     global string $SAGslider;
     $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
     //rebuildSurface -po 1 -rpo false -n "quadMeshResult";
-    //nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
+	//nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
     python "mergePatches()";
     
 }
@@ -102,25 +102,28 @@ global proc SAGsurfaceGen()
     $SAGflag = 0;
     global int $SAGsubdivisions;
     global string $SAGslider;
+    string $nurbssurf[];
     string $selectedcurves[];
     $selectedcurves = `ls -sl`;
     $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
     if(size($selectedcurves)==4)
     {
-        boundary -ch 1 -or 0 -ep 0 -rn 0 -po 0 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
-        
-        rebuildSurface -po 1 -rpo false -n "quadMeshResult";
-        nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
+        $nurbssurf = `boundary -ch 1 -or 0 -ep 0 -rn 0 -po 0 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0]`;
         
         
+		//rebuildSurface -po 1 -rpo false -n "quadMeshResult";
+		//nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
+		
         
         
-        //python "mergePatches()";
+        
+        python "mergePatches()";
     
         
         dR_conform;
         dR_DoCmd("conform");
         DeleteHistory;
+        select $nurbssurf;
         
     }
     else
