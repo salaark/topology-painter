@@ -32,8 +32,8 @@ global proc TopoSketchWindow()
         frameLayout -label "Patch Options";
             rowLayout -numberOfColumns 1;
                 $SAGslider = `intSliderGrp -label "Subdivisions"  -field true
-                -fieldMinValue 0 -fieldMaxValue 200
-                -minValue 0 -maxValue 200 -value 100
+                -fieldMinValue 0 -fieldMaxValue 1000
+                -minValue 0 -maxValue 1000 -value 20
                 -dc "SAGrebuildPatches()"`;
             setParent ..;
             rowLayout -numberOfColumns 1;
@@ -99,7 +99,7 @@ global proc SAGrebuildPatches()
     global string $SAGslider;
     $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
     //rebuildSurface -po 1 -rpo false -n "quadMeshResult";
-	//nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
+    //nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
     python "mergePatches()";
     
 }
@@ -140,15 +140,15 @@ global proc SAGsurfaceGen()
     $SAGflag = 0;
     global int $SAGsubdivisions;
     global string $SAGslider;
-    string $nurbssurf[];
     string $selectedcurves[];
     $selectedcurves = `ls -sl`;
     $SAGsubdivisions = `intSliderGrp -q -v $SAGslider`;
     if(size($selectedcurves)==4)
     {
-        $nurbssurf = `boundary -ch 1 -or 0 -ep 0 -rn 0 -po 0 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0]`;
+        boundary -ch 1 -or 0 -ep 0 -rn 0 -po 0 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0];
         
-t";
+        //rebuildSurface -po 1 -rpo false -n "quadMeshResult";
+        //nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
         
         
         
@@ -159,7 +159,6 @@ t";
         dR_conform;
         dR_DoCmd("conform");
         DeleteHistory;
-        select $nurbssurf;
         
     }
     else
