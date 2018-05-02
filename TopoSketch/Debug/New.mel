@@ -2,11 +2,65 @@ global int $SAGsubdivisions;
 global string $SAGslider;
 global int $SAGflag;
 global int $SAGjobnum;
+global string $SAGwindow;
+//python "execfile('C:/Users/Sagar Tetali/Desktop/Topology Painter/topology-painter/TopoSketch/Debug/TopoSketch.py')";
 
 $SAGjobnum = `scriptJob -e "ToolChanged" SAGrenewTool -permanent`;
 
 nameCommand -ann "Kill Curve Tool" -c "KillCurveTool" KillCurveToolCommand;
 hotkey -k "F5" -name "KillCurveToolCommand";
+global proc TopoSketchWindow()
+{
+    global int $SAGsubdivisions;
+    global string $SAGslider;
+    global string $SAGwindow;
+
+    $SAGwindow = `window -title "TopoSketch" -width 125`;
+    
+    columnLayout -adjustableColumn true grammarForm;
+        frameLayout -label "Curve Options";
+            rowLayout -numberOfColumns 1;
+                button -label "Stop Drawing" -command "KillCurveTool" -width 125 -rs true ;
+            setParent ..;
+    
+            rowLayout -numberOfColumns 1;
+                button -label "Draw Boundary Curves" -command "SAGstartDrawing" -width 125 -rs true ;
+            setParent ..;
+            rowLayout -numberOfColumns 1;
+            setParent ..;
+        setParent ..;
+        frameLayout -label "Patch Options";
+            rowLayout -numberOfColumns 1;
+                $SAGslider = `intSliderGrp -label "Subdivisions"  -field true
+                -fieldMinValue 0 -fieldMaxValue 200
+                -minValue 0 -maxValue 200 -value 100
+                -dc "SAGrebuildPatches()"`;
+            setParent ..;
+            rowLayout -numberOfColumns 1;
+                button -label "Generate Quad Patch" -command "SAGsurfaceGen" -rs true;
+            setParent ..;
+            
+            rowLayout -numberOfColumns 1;
+                button -label "Attach to Parent Mesh" -command "SAGExtractMesh" -rs true;
+            setParent ..;
+            rowLayout -numberOfColumns 1;
+                button -label "Exit" -command "KillWindow()" -rs true;
+            setParent ..;
+
+        setParent ..;
+showWindow;
+}
+menu -parent MayaWindow -label "TopoSketch" -tearOff true;
+    menuItem -command startTopoSketch "Create Quad Patches";
+
+global proc KillWindow()
+{
+    global string $SAGwindow;
+    deleteUI -window $SAGwindow;
+    stopTopoSketch;
+    
+}
+
 
 
 
@@ -22,24 +76,7 @@ global proc KillCurveTool()
     
 }
 
-global proc TopoSketchWindow()
-{
-    global int $SAGsubdivisions;
-    global string $SAGslider;
 
-window -title "Topology Tool";
-    columnLayout -adjustableColumn true;
-    button -label "Attach Patches" -command "SAGattachPatches";
-    button -label "Stop Drawing" -command "KillCurveTool";
-    button -label "Draw Boundary Curves" -command "SAGstartDrawing";
-    $SAGslider = `intSliderGrp -label "Subdivision Level" -field true
-    -fieldMinValue 10 -fieldMaxValue 200
-    -minValue 0 -maxValue 200 -value 100
-    -changeCommand "SAGrebuildPatches()"`;
-    button -label "Generate Quad Patch" -command "SAGsurfaceGen";
-    button - label "Attach to Parent Mesh" -command "SAGExtractMesh";
-showWindow;
-}
 
 global proc SAGattachPatches()
 {
@@ -72,6 +109,7 @@ global proc startTopoSketch()
     global int $SAGflag;
     $SAGflag = 1;
     TopoSketchWindow;
+   
     
     string $selected[] = `ls -sl`;
     $el = $selected[0];
@@ -110,10 +148,8 @@ global proc SAGsurfaceGen()
     {
         $nurbssurf = `boundary -ch 1 -or 0 -ep 0 -rn 0 -po 0 -ept 0.7012 $selectedcurves[3] $selectedcurves[2] $selectedcurves[1] $selectedcurves[0]`;
         
+t";
         
-		//rebuildSurface -po 1 -rpo false -n "quadMeshResult";
-		//nurbsToPolygonsPref -f 0 -pc $SAGsubdivisions;
-		
         
         
         
@@ -147,7 +183,7 @@ global proc SAGrenewTool()
             EPCurveTool;
         }
         else
-        print("still doin this");
+        print(" ");
     }
     else
     KillCurveTool;
@@ -197,3 +233,7 @@ global proc SAGstartDrawing()
    
     
 }
+
+
+
+
