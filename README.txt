@@ -1,20 +1,11 @@
-Sagar-
+Load the plugin and click TopoSketch->Create Quad Patches. Draw strokes corresponding to patch boundary edges. Select 4 adjacent curves and click Generate Quad Patch to generate each patch (which are automatically merged). Adjust the subdivision level using the slider. If desired, click Attach to Parent Mesh to have the patch merged into the mesh.
 
-The MEL Command to run the plugin is "TopoSketch".
-The MEL Script "StartStopTopo.mel" when loaded, creates two global procedures "startTopoSketch", and "stopTopoSketch".
 
-startTopoSketch - 
+Final MEL Script: New.mel
+Final C++ Plugin: TopoSketch.mll
+Final Python Script: TopoSketch.py
+The above files are in TopoSketch/Debug
 
-This first checks the number of objects in the scene selected by the user.
-If only one object is selected, this procedure then makes that mesh live, and starts the CV Curve Tool operation to enable drawing curves on the mesh.
-Note: It is suggested you enable wireframe mode when doing this.
+Load Plugin by loading TopoSketch.mll
 
-If more or no objects are selected, it throws an error.
-
-stopTopoSketch - stops the topo sketch operation. 
-
-This first checks if any objects are selected. If they are, it deselects all the objects and then invokes Make Not Live. 
-
-Once the Script is Loaded, type "startTopoSketch" in the MEL command line or script editor to start sketching on the live mesh.
-
-When you're done sketching, type "stopTopoSketch" in the MEL Command Line or Script Editor to stop sketching, deselect all objects, and make the mesh Not Live. 
+Note: If the TopoSketch.py is not loaded automatically(patches cannot be created), run the contents of TopoSketch.py in the Python Script Editor in Maya.		

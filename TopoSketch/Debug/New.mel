@@ -3,12 +3,13 @@ global string $SAGslider;
 global int $SAGflag;
 global int $SAGjobnum;
 global string $SAGwindow;
-//python "execfile('C:/Users/Sagar Tetali/Desktop/Topology Painter/topology-painter/TopoSketch/Debug/TopoSketch.py')";
+python "execfile('./TopoSketch.py')";
 
 $SAGjobnum = `scriptJob -e "ToolChanged" SAGrenewTool -permanent`;
 
 nameCommand -ann "Kill Curve Tool" -c "KillCurveTool" KillCurveToolCommand;
 hotkey -k "F5" -name "KillCurveToolCommand";
+// builds the GUI Window
 global proc TopoSketchWindow()
 {
     global int $SAGsubdivisions;
@@ -53,6 +54,7 @@ showWindow;
 menu -parent MayaWindow -label "TopoSketch" -tearOff true;
     menuItem -command startTopoSketch "Create Quad Patches";
 
+//Kills the GUI Window
 global proc KillWindow()
 {
     global string $SAGwindow;
@@ -64,6 +66,7 @@ global proc KillWindow()
 
 
 
+//Stops autorenewing curve tool
 global proc KillCurveTool()
 {
     global int $SAGflag;
@@ -77,7 +80,7 @@ global proc KillCurveTool()
 }
 
 
-
+//Calls the python function to merge patches
 global proc SAGattachPatches()
 {
     global int $SAGflag;
@@ -91,6 +94,7 @@ global proc SAGattachPatches()
     
 }
 
+//rebuilds patches to new subdivision level. Called if subdivision slider changed
 global proc SAGrebuildPatches()
 {    
     global int $SAGflag;
@@ -103,7 +107,7 @@ global proc SAGrebuildPatches()
     python "mergePatches()";
     
 }
-
+// called when menu option selected.
 global proc startTopoSketch()
 {
     global int $SAGflag;
@@ -133,6 +137,7 @@ global proc startTopoSketch()
         error "No Objects Selected";
     }
 }
+//Called when Generate Quad Patch button is pressed. Takes four boundary curves and builds a nurbs patch which is subsequently rebuilt to quad patch in the python script
 
 global proc SAGsurfaceGen()
 {
@@ -170,7 +175,7 @@ global proc SAGsurfaceGen()
     
 }
 
-
+//Autorenews the Curve Tool
 global proc SAGrenewTool()
 {
     global int $SAGflag;
@@ -190,6 +195,7 @@ global proc SAGrenewTool()
     
     
 }
+//exits tool
 
 global proc stopTopoSketch()
 {
@@ -217,13 +223,14 @@ global proc stopTopoSketch()
 
 
 }
+//attaches patch to original mesh
 
 global proc SAGExtractMesh()
 {
     
     python "extractPatch()";
 }
-
+//restart curve tool for sketching curves
 global proc SAGstartDrawing()
 {
     global int $SAGflag;

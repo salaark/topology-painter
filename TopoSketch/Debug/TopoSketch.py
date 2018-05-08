@@ -2,6 +2,9 @@ import maya.mel as mel
 import maya.cmds as cmds
 import math
 
+# Takes the generated hidden nurbs patch and rebuilds it into a quad patch. If more than one nurbs patch already exists, looks to merge current patch into previous patches and rebuilds to quads.
+
+
 def mergePatches():
 	patches = []
 	mesh = "quadMeshResult"
