@@ -4,6 +4,13 @@ CIS 660: Advanced Topics in Computer Graphics
 
 Maya C++/MEL plugin to allow for sketch-based retopography based on existing SIGGRAPH research.
 
+## Description
+Artists want to retopologize meshes, often to quads, with control over subdivision levels. Take in any mesh (character, landscape, plane). User draws curves over the mesh to define patch boundaries. Generate quad mesh topography with user-specified subdivision level. Integrate the new patch into the provided mesh. Allows artists to intuitively retopologize 3D models with better edge flow control.
+
+![](workflow.png)
+
+![](toposketch.png)
+
 ## Usage Details
 
 Enable the plugin through Windows->Settings/Preferences->Plug-in Manager and browsing for the .mll file.  
